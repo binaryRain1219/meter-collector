@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class DeviceRepository {
@@ -30,5 +31,11 @@ public class DeviceRepository {
                 FROM device
                 ORDER BY deviceId
                 """, ROW_MAPPER);
+    }
+
+    public Optional<Long> findIdByCode(String deviceCode) {
+        return jdbcTemplate.queryForList(
+                "SELECT deviceId FROM device WHERE deviceCode = ?", Long.class, deviceCode
+        ).stream().findFirst();
     }
 }
