@@ -38,4 +38,12 @@ public class DeviceRepository {
                 "SELECT deviceId FROM device WHERE deviceCode = ?", Long.class, deviceCode
         ).stream().findFirst();
     }
+
+    public Optional<Device> findByCode(String deviceCode) {
+        return jdbcTemplate.query("""
+                SELECT deviceId, buildingId, deviceCode, name, category, isMain
+                FROM device
+                WHERE deviceCode = ?
+                """, ROW_MAPPER, deviceCode).stream().findFirst();
+    }
 }

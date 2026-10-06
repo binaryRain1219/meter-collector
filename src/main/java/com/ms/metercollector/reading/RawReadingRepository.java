@@ -8,7 +8,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -78,5 +80,21 @@ public class RawReadingRepository {
                         """,
                 SAMPLE_MAPPER, deviceId, from, to
         );
+    }
+
+    // 장비별 가장 최근 값. deviceId → 값. 값이 하나도 없는 장비는 빠진다.
+    public Map<Long, RawSample> findLatestByDevice() {
+        Map<Long, RawSample> latest = new HashMap<>();
+        jdbcTemplate.query("""
+                        SELECT r.deviceId, r.measuredAt, r.cumulativeKwh, r.instantKw, r.meterStatus
+                        FROM rawReading r
+                        JOIN (SELECT deviceId, MAX(measuredAt) AS measuredAt FROM rawReading GROUP BY deviceId) last
+                          ON last.deviceId = r.deviceId AND last.measuredAt = r.measuredAt
+                        """,
+                rs -> {
+                    latest.put(rs.getLong("deviceId"), SAMPLE_MAPPER.mapRow(rs, 0));
+                }
+        );
+        return latest;
     }
 }

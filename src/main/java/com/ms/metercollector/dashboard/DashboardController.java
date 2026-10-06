@@ -1,22 +1,31 @@
 package com.ms.metercollector.dashboard;
 
-import com.ms.metercollector.device.DeviceRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Controller
 public class DashboardController {
 
-    private final DeviceRepository deviceRepository;
+    static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
 
-    public DashboardController(DeviceRepository deviceRepository) {
-        this.deviceRepository = deviceRepository;
+    private final DashboardService dashboardService;
+    private final JsonMapper jsonMapper;
+
+    public DashboardController(DashboardService dashboardService, JsonMapper jsonMapper) {
+        this.dashboardService = dashboardService;
+        this.jsonMapper = jsonMapper;
     }
 
     @GetMapping("/")
     public String dashboard(Model model) {
-        model.addAttribute("devices", deviceRepository.findAll());
+        DashboardView view = dashboardService.load(LocalDateTime.now(ZONE));
+        model.addAttribute("view", view);
+        model.addAttribute("chartJson", jsonMapper.writeValueAsString(view.chart()));
         return "dashboard";
     }
 }

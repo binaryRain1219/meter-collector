@@ -171,4 +171,26 @@ public class UsageStatRepository {
                 STAT_1D_MAPPER, deviceId, statDate
         ).stream().findFirst();
     }
+
+    // periodStart 가 [from, to) 인 1시간 통계, 시각 순.
+    public List<UsageStat> find1h(long deviceId, LocalDateTime from, LocalDateTime to) {
+        return jdbcTemplate.query("""
+                        SELECT * FROM usageStat1h
+                        WHERE deviceId = ? AND periodStart >= ? AND periodStart < ?
+                        ORDER BY periodStart
+                        """,
+                STAT_1H_MAPPER, deviceId, from, to
+        );
+    }
+
+    // statDate 가 [from, to] 인 일 통계, 날짜 순.
+    public List<UsageStat> find1d(long deviceId, LocalDate from, LocalDate to) {
+        return jdbcTemplate.query("""
+                        SELECT * FROM usageStat1d
+                        WHERE deviceId = ? AND statDate BETWEEN ? AND ?
+                        ORDER BY statDate
+                        """,
+                STAT_1D_MAPPER, deviceId, from, to
+        );
+    }
 }

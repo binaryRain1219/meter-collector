@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<th:block th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:src="@{/js/charts.js}"></script>
+</th:block>
+
+<!-- 장비 현재 상태 -->
+<span th:fragment="deviceState(state)" class="status"
+      th:classappend="${state.name() == 'NORMAL'} ? 'good'
+                    : (${state.name() == 'FAULT'} ? 'critical'
+                    : (${state.name() == 'MAINT'} ? 'warning'
+                    : (${state.name() == 'STALE'} ? 'serious' : 'none')))"
+      th:text="${state.label()}">정상</span>
+
+<!-- 통계 품질. stat 이 null 이면 아직 계산 전 -->
+<span th:fragment="quality(stat)" class="status"
+      th:classappend="${stat == null} ? 'none'
+                    : (${stat.quality().name() == 'OK'} ? 'good'
+                    : (${stat.quality().name() == 'FAULT'} ? 'critical'
+                    : (${stat.quality().name() == 'MISSING'} ? 'serious' : 'warning')))"
+      th:text="${stat == null} ? '미계산' : ${stat.quality().label()}">정상</span>
+
+</body>
+</html>
